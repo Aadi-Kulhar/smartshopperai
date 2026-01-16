@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Competitor {
+  id              Int            @id @default(autoincrement())
+  name            String
+  url             String         @unique
+  extraction_goal String?
+  is_active       Boolean        @default(true)
+  created_at      DateTime       @default(now())
+  updated_at      DateTime       @updatedAt
+  
+  price_data      PriceData[]
+  price_changes   PriceChange[]
+
+  @@map("competitors")
+}
+
+model PriceData {
+  id              Int        @id @default(autoincrement())
+  competitor_id   Int
+  url             String
+  price           String?
+  currency        String?
+  extracted_data  String?    // JSON string
+  extracted_at    DateTime   @default(now())
+  
+  competitor      Competitor @relation(fields: [competitor_id], references: [id], onDelete: Cascade)
+
+  @@index([competitor_id, extracted_at(sort: Desc)])
+  @@map("price_data")
+}
+
+model PriceChange {
+  id                Int        @id @default(autoincrement())
+  competitor_id     Int
+  url               String
+  old_price         String?
+  new_price         String?
+  change_percentage Float?
+  detected_at       DateTime   @default(now())
+  
+  competitor        Competitor @relation(fields: [competitor_id], references: [id], onDelete: Cascade)
+
+  @@index([competitor_id, detected_at(sort: Desc)])
+  @@map("price_changes")
+}
