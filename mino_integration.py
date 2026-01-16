@@ -15,13 +15,24 @@ import sqlite3
 from contextlib import contextmanager
 
 # Configure logging
+# On Vercel, filesystem is read-only except /tmp, so we conditionally add FileHandler
+handlers = [logging.StreamHandler()]
+
+# Try to add file handler - use /tmp/ on Vercel (writable), or current dir locally
+# Check if we're on Vercel (read-only filesystem) or can write to current directory
+is_vercel = os.getenv('VERCEL') == '1' or not os.access('.', os.W_OK)
+log_file_path = '/tmp/mino_monitor.log' if is_vercel else 'mino_monitor.log'
+
+try:
+    handlers.append(logging.FileHandler(log_file_path))
+except (OSError, PermissionError):
+    # If file handler fails (e.g., on Vercel /var/task), just use console logging
+    pass
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('mino_monitor.log'),
-        logging.StreamHandler()
-    ]
+    handlers=handlers
 )
 logger = logging.getLogger(__name__)
 
