@@ -1,5 +1,7 @@
 # Smart Shopping - AI-Powered Price Comparison Platform
 
+> Deployed on Vercel | Powered by Mino AI
+
 This project integrates with the Mino Automation API to provide an intelligent shopping assistant platform. Users can search for products using natural language or image uploads, and the AI finds the best prices across multiple retailers.
 
 ## Features
