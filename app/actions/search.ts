@@ -89,7 +89,7 @@ export async function searchProducts(query: string): Promise<SearchResult> {
     }
 
     try {
-        const retailers = getRetailerSearchUrls(query, 'text').slice(0, 6); // Top 6
+        const retailers = getRetailerSearchUrls(query, 'text').slice(0, 3); // Reduce to top 3 for speed
         const goal = createExtractionGoal('text', query);
 
         // Run searches in parallel
@@ -145,7 +145,7 @@ export async function searchImage(formData: FormData): Promise<SearchResult> {
     try {
         // We search for "similar product" on retailers, just like the Python app did
         // The Mino extraction goal will contain instructions to look for similar products
-        const retailers = getRetailerSearchUrls('similar product', 'image').slice(0, 6);
+        const retailers = getRetailerSearchUrls('similar product', 'image').slice(0, 3);
         const goal = createExtractionGoal('image', 'product in uploaded image');
 
         const promises = retailers.map(async ([retailerName, url]) => {
