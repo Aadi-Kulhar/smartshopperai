@@ -90,7 +90,7 @@ export class MinoClient {
 
             try {
               const data: MinoResponse = JSON.parse(dataLine);
-              
+
               if (data.status === 'COMPLETED') {
                 resultJson = data.resultJson;
                 if (resultJson) {
@@ -164,31 +164,30 @@ export function createExtractionGoal(
   queryType: 'text' | 'image',
   queryData: string
 ): string {
+  const commonFields =
+    'title (string), price (number or string with currency), original_price (number or string), ' +
+    'discount_percentage (number), currency (string), seller (string), ' +
+    'rating (number, 0-5 stars), reviews_count (number), ' +
+    'availability (string), shipping_cost (string), ' +
+    'image_url (string), product_url (string, absolute URL).';
+
   if (queryType === 'text') {
     return (
-      `Search for products matching this description: ${queryData}. ` +
-      'On this search results page, extract information for the top 3-5 most relevant products. ' +
-      'For each product, extract: product title, current price (as string with currency symbol), ' +
-      'original price (if on sale/discount), discount percentage (if available), special offers or deals (if any), ' +
-      'seller/retailer name, stock availability status (in stock/out of stock), shipping cost, ' +
-      'seller rating (if available), product image URL, and the product\'s detail page URL. ' +
-      'Return as a JSON array of objects, each with fields: title, price, original_price, discount_percentage, ' +
-      'offers (array of special offers/deals), currency, seller, availability, shipping_cost, rating, ' +
-      'image_url, product_url, confidence_score. ' +
-      'If this is a search results page, extract multiple products. If it\'s a product detail page, extract that single product.'
+      `Search for products matching: "${queryData}". ` +
+      'On the search results page, identify and extract the top 5 most relevant products. ' +
+      'Prioritize products with clear pricing and high relevance. ' +
+      `For each product, extract the following fields: ${commonFields} ` +
+      'Ensure "price" captures the current selling price. ' +
+      'Calculate "discount_percentage" if strictly available or derivable from original_price. ' +
+      'Return a JSON array of objects.'
     );
   } else {
     // image
     return (
-      `Identify the product in this image and search for similar products. ` +
-      'On this search results page, extract information for the top 3-5 most similar products. ' +
-      'For each product, extract: product title, current price (as string with currency symbol), ' +
-      'original price (if on sale/discount), discount percentage (if available), special offers or deals (if any), ' +
-      'seller/retailer name, stock availability status, shipping cost, seller rating (if available), ' +
-      'product image URL, and the product\'s detail page URL. ' +
-      'Return as a JSON array of objects, each with fields: title, price, original_price, discount_percentage, ' +
-      'offers (array of special offers/deals), currency, seller, availability, shipping_cost, rating, ' +
-      'image_url, product_url, confidence_score.'
+      `Analyze the product in this image. Then, on this retailer's site, search for and identify the top 5 visually similar products. ` +
+      'Prioritize matches that look structurally and functionally similar. ' +
+      `For each product, extract: ${commonFields} ` +
+      'Return a JSON array of objects.'
     );
   }
 }
@@ -197,13 +196,13 @@ export function normalizeImageUrl(imageUrl: string | null | undefined, sourceUrl
   if (!imageUrl || imageUrl === 'N/A' || imageUrl.trim() === '') {
     return null;
   }
-  
+
   imageUrl = imageUrl.trim();
-  
+
   if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
     return imageUrl;
   }
-  
+
   if (sourceUrl) {
     try {
       if (imageUrl.startsWith('/')) {
@@ -216,6 +215,6 @@ export function normalizeImageUrl(imageUrl: string | null | undefined, sourceUrl
       return null;
     }
   }
-  
+
   return null;
 }

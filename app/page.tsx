@@ -1,23 +1,27 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { SearchForm } from '@/components/SearchForm';
 import { ProductCard } from '@/components/ProductCard';
 import { searchProducts, searchImage, Product } from '@/app/actions/search';
-import { ShoppingBag, Zap, Shield, Sparkles } from 'lucide-react';
+import { ShoppingBag, Zap, Shield, Sparkles, ArrowUpDown } from 'lucide-react';
 
-export const maxDuration = 60; // Set max duration for Server Actions in this route
+export const maxDuration = 60;
+
+type SortOption = 'relevance' | 'price-asc' | 'price-desc' | 'rating' | 'discount';
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const [sortBy, setSortBy] = useState<SortOption>('relevance');
 
   const handleSearch = async (query: string) => {
     setIsLoading(true);
     setError(null);
     setHasSearched(true);
+    setSortBy('relevance'); // Reset sort on new search
 
     try {
       const result = await searchProducts(query);
@@ -39,6 +43,7 @@ export default function Home() {
     setIsLoading(true);
     setError(null);
     setHasSearched(true);
+    setSortBy('relevance');
 
     try {
       const result = await searchImage(formData);
@@ -55,6 +60,39 @@ export default function Home() {
       setIsLoading(false);
     }
   };
+
+  const sortedProducts = useMemo(() => {
+    if (!products.length) return [];
+
+    const sorted = [...products];
+
+    switch (sortBy) {
+      case 'price-asc':
+        return sorted.sort((a, b) => {
+          const priceA = parseFloat(a.price.replace(/[^0-9.]/g, '')) || Infinity;
+          const priceB = parseFloat(b.price.replace(/[^0-9.]/g, '')) || Infinity;
+          return priceA - priceB;
+        });
+      case 'price-desc':
+        return sorted.sort((a, b) => {
+          const priceA = parseFloat(a.price.replace(/[^0-9.]/g, '')) || 0;
+          const priceB = parseFloat(b.price.replace(/[^0-9.]/g, '')) || 0;
+          return priceB - priceA;
+        });
+      case 'rating':
+        return sorted.sort((a, b) => {
+          const ratingA = typeof a.rating === 'string' ? parseFloat(a.rating) : (a.rating || 0);
+          const ratingB = typeof b.rating === 'string' ? parseFloat(b.rating) : (b.rating || 0);
+          return ratingB - ratingA;
+        });
+      case 'discount':
+        return sorted.sort((a, b) => (b.discount_percentage || 0) - (a.discount_percentage || 0));
+      case 'relevance':
+      default:
+        // Assume default order from API is relevance
+        return sorted;
+    }
+  }, [products, sortBy]);
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-purple-500/30">
@@ -122,10 +160,39 @@ export default function Home() {
             )}
 
             {products.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {products.map((product, index) => (
-                  <ProductCard key={`${product.product_url}-${index}`} product={product} />
-                ))}
+              <div className="space-y-6">
+                {/* Sorting Controls */}
+                <div className="flex flex-wrap items-center justify-between gap-4 bg-white/5 p-4 rounded-xl border border-white/10 backdrop-blur-sm">
+                  <span className="text-zinc-400 text-sm">Found {products.length} results</span>
+
+                  <div className="flex items-center gap-2 overflow-x-auto">
+                    <span className="text-sm text-zinc-500 whitespace-nowrap">Sort by:</span>
+                    {[
+                      { value: 'relevance', label: 'Relevance' },
+                      { value: 'price-asc', label: 'By Price (Low)' },
+                      { value: 'price-desc', label: 'By Price (High)' },
+                      { value: 'discount', label: 'Best Deals' },
+                      { value: 'rating', label: 'Rating' },
+                    ].map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => setSortBy(option.value as SortOption)}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${sortBy === option.value
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700'
+                          }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {sortedProducts.map((product, index) => (
+                    <ProductCard key={`${product.product_url}-${index}`} product={product} />
+                  ))}
+                </div>
               </div>
             )}
 
