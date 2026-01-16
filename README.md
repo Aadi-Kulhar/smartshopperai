@@ -1,4 +1,4 @@
-# Smart Shopper AI (formerly TinyFish)
+# Smart Shopper
 
 > A premium, AI-powered price comparison platform built with Next.js 14 and Mino AI.
 

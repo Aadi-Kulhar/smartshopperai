@@ -6,6 +6,8 @@ import { ProductCard } from '@/components/ProductCard';
 import { searchProducts, searchImage, Product } from '@/app/actions/search';
 import { ShoppingBag, Zap, Shield, Sparkles } from 'lucide-react';
 
+export const maxDuration = 60; // Set max duration for Server Actions in this route
+
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -73,10 +75,10 @@ export default function Home() {
           </div>
 
           <h1 className="text-5xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-white/50 tracking-tight">
-            TinyFish
+            Smart Shopper
           </h1>
           <p className="text-lg md:text-xl text-zinc-400 leading-relaxed">
-            Find the best prices across the web. Analyzing millions of products with advanced AI to save you money.
+            Find the best prices across the web. Analyzing millions of products with <a href="https://mino.ai" target="_blank" className="text-blue-400 hover:text-blue-300 transition-colors">Mino AI</a> to save you money.
           </p>
         </header>
 
@@ -138,7 +140,12 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="relative z-10 py-8 text-center text-zinc-600 text-sm border-t border-white/5 mt-auto bg-black/50 backdrop-blur-lg">
-        <p>© {new Date().getFullYear()} TinyFish. Powered by Mino AI.</p>
+        <p className="flex items-center justify-center gap-2">
+          © {new Date().getFullYear()} Smart Shopper.
+          <span className="flex items-center gap-1">
+            Powered by <a href="https://mino.ai" target="_blank" className="text-zinc-400 hover:text-white transition-colors">Mino AI</a>
+          </span>
+        </p>
       </footer>
     </div>
   );
