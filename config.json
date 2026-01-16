@@ -1,0 +1,21 @@
+{
+  "competitors": [
+    {
+      "name": "Competitor 1",
+      "url": "https://example.com/product/123",
+      "extraction_goal": "Extract the current price of the product from this page. Return a JSON object with 'price' (as string), 'currency' (if available), and any other relevant product information like 'title', 'availability', etc."
+    },
+    {
+      "name": "Competitor 2",
+      "url": "https://example.com/product/456",
+      "extraction_goal": "Extract the current price of the product from this page. Return a JSON object with 'price' (as string), 'currency' (if available), and any other relevant product information like 'title', 'availability', etc."
+    }
+  ],
+  "delay_between_requests": 2.0,
+  "monitoring_schedule": {
+    "enabled": true,
+    "time": "02:00",
+    "timezone": "UTC"
+  }
+}
+
