@@ -10,6 +10,9 @@ import {
 const MINO_API_KEY = process.env.MINO_API_KEY || '';
 const minoClient = new MinoClient(MINO_API_KEY);
 
+export const maxDuration = 60; // Increase timeout for AI search operations
+
+
 export type Product = {
     title: string;
     price: string;

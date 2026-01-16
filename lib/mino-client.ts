@@ -34,7 +34,7 @@ export class MinoClient {
   async extractData(
     url: string,
     goal: string,
-    maxRetries = 3
+    maxRetries = 1
   ): Promise<any> {
     const payload = { url, goal };
 
